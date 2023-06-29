@@ -1,0 +1,14 @@
+.photo-grid {
+    display: grid;
+    row-gap: 20px;
+    column-gap: 17px;
+    justify-content: center;
+    grid-template-columns: repeat(auto-fit, minmax(282px, 282px));
+    min-height: 46vh;
+}
+
+@media screen and (max-width:820px) {
+    .photo-grid {
+        min-height: 30vh;
+    }
+}

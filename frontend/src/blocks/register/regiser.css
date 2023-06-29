@@ -1,0 +1,8 @@
+.register {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    align-items: center;
+    background: #FFFFFF;
+    background-color: #000000;
+}

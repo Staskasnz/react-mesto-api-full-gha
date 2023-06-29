@@ -1,0 +1,18 @@
+.profile__avatar-pencil{
+    background: no-repeat;
+    opacity: 0;
+    background-image: url(../../../images/Vector.svg);
+    background-color: rgba(0, 0, 0, 0);
+    min-height: 120px;
+    min-width: 120px;
+    position: absolute;
+    background-position-x: center;
+    background-position-y: center;
+    transition: .2s;
+    cursor: pointer;
+}
+
+.profile__avatar-pencil:hover{
+    opacity: 1;
+    background-color: rgba(0, 0, 0, .8);
+}

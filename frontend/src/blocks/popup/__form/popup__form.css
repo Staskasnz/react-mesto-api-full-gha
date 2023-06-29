@@ -1,0 +1,12 @@
+.popup__form{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    max-width: 83%;
+}
+
+@media screen and (max-width:600px) {
+    .popup__form {
+        max-width: 84.4%;
+    }
+}

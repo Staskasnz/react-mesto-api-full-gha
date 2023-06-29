@@ -1,0 +1,13 @@
+.popup__inactive-button{
+    cursor: unset;
+    background: rgba(0, 0, 0, 0);
+    color: #C4C4C4;
+    border: 1px solid #C4C4C4;
+    box-sizing: border-box;
+}
+
+.popup__inactive-button:hover{
+    background: rgba(0, 0, 0, 0);
+    color: #C4C4C4;
+    cursor: unset;
+}

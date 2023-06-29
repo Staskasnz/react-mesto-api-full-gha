@@ -1,0 +1,6 @@
+.photo-grid__photo {
+    min-width: 282px;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    cursor: pointer;
+}

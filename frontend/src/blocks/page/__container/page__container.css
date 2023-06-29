@@ -1,0 +1,11 @@
+.page__container {
+    padding: 45px 45px 50px;
+    margin: auto;
+    max-width: 880px;
+}
+
+@media screen and (max-width:320px) {
+    .page__container {
+        padding: 28px 0px 36px;
+    }
+}
