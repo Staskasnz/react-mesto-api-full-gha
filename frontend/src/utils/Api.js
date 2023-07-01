@@ -1,43 +1,42 @@
-const apiInfoConfig = {
-    url: 'https://nomoreparties.co/v1/cohort-60',
-    headers: {
-        authorization: 'dacb1343-5ee5-4c35-990d-5bf7b2f7cc79',
-        'Content-Type': 'application/json'
-    }
-}
 
-const authConfig = {
-    url: 'https://auth.nomoreparties.co',
-    headers: {
-        'Content-Type': 'application/json'
-    }
-}
+
 
 class Api {
-    constructor(config) {
-        this.url = config.url;
-        this.headers = config.headers;
+    constructor({ baseUrl }) {
+        this._baseUrl = baseUrl;
     }
 
     getUserInfo() {
-        return fetch(`${this.url}/users/me`, {
-            headers: this.headers
+        const token = localStorage.getItem("token");
+        return fetch(`${this._baseUrl}/users/me`, {
+            headers: {
+                "Content-type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            }
         })
             .then(handleResponse)
     }
 
 
     getCardInfo() {
-        return fetch(`${this.url}/cards`, {
-            headers: this.headers
+        const token = localStorage.getItem("token");
+        return fetch(`${this._baseUrl}/cards`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            }
         })
             .then(handleResponse)
     }
 
     saveUserInfo(data) {
-        return fetch(`${this.url}/users/me`, {
+        const token = localStorage.getItem("token");
+        return fetch(`${this._baseUrl}/users/me`, {
             method: 'PATCH',
-            headers: this.headers,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
             body: JSON.stringify({
                 name: data.name,
                 about: data.about
@@ -47,9 +46,13 @@ class Api {
     }
 
     setAvatar(data) {
-        return fetch(`${this.url}/users/me/avatar`, {
+        const token = localStorage.getItem("token");
+        return fetch(`${this._baseUrl}/users/me/avatar`, {
             method: 'PATCH',
-            headers: this.headers,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
             body: JSON.stringify({
                 avatar: data.avatar
             })
@@ -58,9 +61,13 @@ class Api {
     }
 
     createNewCard(data) {
-        return fetch(`${this.url}/cards`, {
+        const token = localStorage.getItem("token");
+        return fetch(`${this._baseUrl}/cards`, {
             method: 'POST',
-            headers: this.headers,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
             body: JSON.stringify({
                 name: data.title,
                 link: data.link
@@ -70,33 +77,48 @@ class Api {
     }
 
     deleteCard(cardId) {
-        return fetch(`${this.url}/cards/${cardId}`, {
+        const token = localStorage.getItem("token");
+        return fetch(`${this._baseUrl}/cards/${cardId}`, {
             method: 'DELETE',
-            headers: this.headers
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            }
         })
             .then(handleResponse)
     }
 
     changeLikeCardStatus(cardId, isLiked) {
+        const token = localStorage.getItem("token");
         if (isLiked) {
             return fetch(`${this.url}/cards/${cardId}/likes`, {
                 method: 'PUT',
-                headers: this.headers
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                }
             })
                 .then(handleResponse)
         } else {
-            return fetch(`${this.url}/cards/${cardId}/likes`, {
+            return fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
                 method: 'DELETE',
-                headers: this.headers
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                }
             })
                 .then(handleResponse)
         }
     }
 
     signUp(data) {
-        return fetch(`${this.url}/signup`, {
+        const token = localStorage.getItem("token");
+        return fetch(`${this._baseUrl}/signup`, {
             method: 'POST',
-            headers: this.headers,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
             body: JSON.stringify({
                 password: data.password,
                 email: data.email
@@ -106,9 +128,13 @@ class Api {
     }
 
     signIn(data) {
-        return fetch(`${this.url}/signin`, {
+        const token = localStorage.getItem("token");
+        return fetch(`${this._baseUrl}/signin`, {
             method: 'POST',
-            headers: this.headers,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
             body: JSON.stringify({
                 password: data.password,
                 email: data.email
@@ -118,19 +144,30 @@ class Api {
     }
 
     checkJwt() {
-        return fetch(`${this.url}/users/me`, {
+        const token = localStorage.getItem("token");
+        return fetch(`${this._baseUrl}/users/me`, {
             method: 'GET',
             headers: {
+                "Accept": "application/json",
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem('token')}`
+                "Authorization": `Bearer ${token}`
             }
-        })
-            .then(handleResponse)
+        }).then(handleResponse)
+            .then((data) => {
+                localStorage.setItem('token', data.token)
+                return data;
+            })
     }
 }
 
-const api = new Api(apiInfoConfig);
-const apiAuth = new Api(authConfig)
+const jwtToken = localStorage.getItem("token");
+const api = new Api({
+    baseUrl: 'http://localhost:3001',
+    headers: {
+        authorization: `Bearer ${jwtToken}`,
+        'Content-Type': 'application/json'
+    }
+});
 
 function handleResponse(res) {
     if (res.ok) {
@@ -139,4 +176,4 @@ function handleResponse(res) {
     return Promise.reject(new Error('Ошибка!!!'))
 }
 
-export { api, apiAuth };
+export { api };

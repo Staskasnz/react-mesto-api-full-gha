@@ -2,18 +2,55 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
-
+const cors = require('cors');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { createUser, login } = require('./controllers/users');
 const { auth } = require('./middlewares/auth');
+
 const { errorHandler } = require('./middlewares/error-handler');
 const urlRegex = require('./regex/url-regex');
 const NotFoundError = require('./errors/notfound-error');
 
-const { PORT = 3000 } = process.env;
+// const allowedCors = [
+//   'https://praktikum.tk',
+//   'http://praktikum.tk',
+//   'localhost:3000',
+//   'https://staskasnz.nomoreparties.sbs',
+//   'https://api.staskasnz.nomoreparties.sbs',
+// ];
+
+const { PORT = 3001 } = process.env;
 const app = express();
+
+app.use(cors());
+
+// app.use((req, res, next) => {
+//   const { origin } = req.headers;
+//   const { method } = req; // Сохраняем тип запроса (HTTP-метод) в соответствующую переменную
+
+//   console.log(origin);
+//   console.log(method);
+//   // Значение для заголовка Access-Control-Allow-Methods по умолчанию
+//   const requestHeaders = req.headers['access-control-request-headers'];
+
+//   // Если это предварительный запрос, добавляем нужные заголовки
+//   if (method === 'OPTIONS') {
+//     // разрешаем кросс-доменные запросы с этими заголовками
+//     res.header('Access-Control-Allow-Headers', requestHeaders);
+//     // завершаем обработку запроса и возвращаем результат клиенту
+//     return res.end();
+//   }
+//   if (allowedCors.includes(origin)) {
+//     res.header('Access-Control-Allow-Origin', origin);
+//   }
+
+//   return next();
+// });
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(requestLogger);
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -47,6 +84,8 @@ app.use('/cards', require('./routes/cards'));
 app.use((req, res, next) => {
   next(new NotFoundError('Запрашиваемый путь не найден'));
 });
+
+app.use(errorLogger);
 
 app.use(errors());
 

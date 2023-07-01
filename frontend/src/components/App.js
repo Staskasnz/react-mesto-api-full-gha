@@ -4,7 +4,7 @@ import Main from './Main.js';
 // import PopupWithForm from './PopupWithForm.js';
 import ImagePopup from './ImagePopup.js';
 import { useEffect, useRef, useState } from 'react';
-import { api, apiAuth } from '../utils/Api.js';
+import { api } from '../utils/Api.js';
 import { CurrentUserContext } from '../context/CurrentUserContext.js';
 import EditProfilePopup from './EditProfilePopup.js';
 import EditAvatarPopup from './EditAvatarPopup.js';
@@ -47,12 +47,13 @@ function App() {
   }, [loggedIn]);
 
   useEffect(() => {
+    console.log('проверяю токен');
     tokenCheck();
-  }, [])
+  }, []);
 
   function tokenCheck() {
     if (localStorage.getItem('token')) {
-      apiAuth.checkJwt()
+      api.checkJwt()
         .then((data) => {
           setLoginEmail(data.data.email);
           setLoggedIn(true);
@@ -141,12 +142,13 @@ function App() {
   }
 
   function handleLogin(inputData) {
-    apiAuth.signIn(inputData)
+    api.signIn(inputData)
       .then((data) => {
+        localStorage.setItem('token', data.token);
+        console.log(data);
         setIsSucsess(true);
         isSucsessRef.current = true;
         setLoggedIn(true);
-        localStorage.setItem('token', data.token);
       })
       .catch((err) => {
         setIsSucsess(false);
@@ -162,7 +164,7 @@ function App() {
   }
 
   function handleRegister(inputData) {
-    apiAuth.signUp(inputData)
+    api.signUp(inputData)
       .then(() => {
         setIsSucsess(true);
         navigate('/sign-in', { replace: true });
@@ -200,9 +202,9 @@ function App() {
         <Header loginEmail={loginEmail} setLoginEmail={setLoginEmail} onSignOut={onSignOut} />
 
         <Routes>
-          <Route path="*" element={loggedIn ? <Navigate to="/" replace /> : <Navigate to="/sign-in" replace />} />
-          <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
-          <Route path="/sign-up" element={<Register onRegister={handleRegister} />} />
+          <Route path="*" element={loggedIn ? <Navigate to="/" replace /> : <Navigate to="/signin" replace />} />
+          <Route path="/signin" element={<Login onLogin={handleLogin} />} />
+          <Route path="/signup" element={<Register onRegister={handleRegister} />} />
           <Route path="/" element={<ProtectedRoute element={Main}
             onEditAvatar={handleEditAvatarClick}
             onEditProfile={handleEditProfileClick}
