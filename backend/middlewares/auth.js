@@ -1,10 +1,10 @@
 const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('../errors/unauthorized-error');
+const { JWT_SECRET } = require('../config');
 
 module.exports.auth = (req, res, next) => {
   // достаём авторизационный заголовок
   const { authorization } = req.headers;
-  console.log(req.headers);
   // убеждаемся, что он есть или начинается с Bearer
   if (!authorization || !authorization.startsWith('Bearer ')) {
     throw new UnauthorizedError('Некорректный токен');
@@ -15,7 +15,7 @@ module.exports.auth = (req, res, next) => {
 
   try {
     // попытаемся верифицировать токен
-    payload = jwt.verify(token, 'some-secret-key');
+    payload = jwt.verify(token, process.env.NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
   } catch (e) {
     // отправим ошибку, если не получилось
     next(new UnauthorizedError('Некорректный токен'));

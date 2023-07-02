@@ -4,6 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/notfound-error');
 const BadRequestError = require('../errors/badrequest-error');
 const ConflictError = require('../errors/server-error');
+const { JWT_SECRET } = require('../config');
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
@@ -12,7 +13,7 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       // аутентификация успешна! пользователь в переменной user
       // создадим токен
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, process.env.NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
       // вернём токен
       res.send({ token });
     })
@@ -21,7 +22,7 @@ module.exports.login = (req, res, next) => {
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
+    .then((users) => res.send(users))
     .catch(next);
 };
 
@@ -67,7 +68,7 @@ module.exports.createUser = (req, res, next) => {
       name, about, avatar, email, password: hash,
     }))
     .then((user) => {
-      res.send({ data: user.toObject({ useProjection: true }) });
+      res.send(user.toObject({ useProjection: true }));
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -87,7 +88,7 @@ module.exports.updateUser = (req, res, next) => {
         // Если пользователь не найден
         throw new NotFoundError('Нет пользователя с таким id');
       }
-      return res.send({ data: updatedUser });
+      return res.send(updatedUser);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -106,7 +107,7 @@ module.exports.updateAvatar = (req, res, next) => {
         // Если пользователь не найден
         throw new NotFoundError('Нет пользователя с таким id');
       }
-      return res.send({ data: updatedUser });
+      return res.send(updatedUser);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

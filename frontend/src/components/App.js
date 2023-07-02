@@ -1,7 +1,6 @@
 import Header from './Header.js';
 import Footer from './Footer.js';
 import Main from './Main.js';
-// import PopupWithForm from './PopupWithForm.js';
 import ImagePopup from './ImagePopup.js';
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../utils/Api.js';
@@ -31,7 +30,8 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (loggedIn) {
+    const token = localStorage.getItem('jwt');
+    if (token) {
       Promise.all([
         api.getUserInfo(),
         api.getCardInfo()
@@ -47,15 +47,11 @@ function App() {
   }, [loggedIn]);
 
   useEffect(() => {
-    console.log('проверяю токен');
-    tokenCheck();
-  }, []);
-
-  function tokenCheck() {
-    if (localStorage.getItem('token')) {
-      api.checkJwt()
+    const token = localStorage.getItem('jwt');
+    if (token) {
+      api.checkJwt(token)
         .then((data) => {
-          setLoginEmail(data.data.email);
+          setLoginEmail(data.email);
           setLoggedIn(true);
           navigate('/', { replace: true })
         })
@@ -63,7 +59,7 @@ function App() {
           console.log(err);
         });
     }
-  }
+  }, [navigate]);
 
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(!isEditAvatarPopupOpen);
@@ -92,7 +88,7 @@ function App() {
   }
 
   function handleCardLike(card) {
-    const isLiked = card.likes.some(i => i._id === currentUser._id);
+    const isLiked = card.likes.some(i => i === currentUser._id);
     api.changeLikeCardStatus(card._id, !isLiked)
       .then((newCard) => {
         setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
@@ -144,8 +140,7 @@ function App() {
   function handleLogin(inputData) {
     api.signIn(inputData)
       .then((data) => {
-        localStorage.setItem('token', data.token);
-        console.log(data);
+        localStorage.setItem('jwt', data.token);
         setIsSucsess(true);
         isSucsessRef.current = true;
         setLoggedIn(true);
@@ -184,7 +179,7 @@ function App() {
 
   function onSignOut() {
     setLoginEmail('');
-    localStorage.removeItem('token');
+    localStorage.removeItem('jwt');
   }
 
   function closeAllPopups() {
@@ -202,9 +197,9 @@ function App() {
         <Header loginEmail={loginEmail} setLoginEmail={setLoginEmail} onSignOut={onSignOut} />
 
         <Routes>
-          <Route path="*" element={loggedIn ? <Navigate to="/" replace /> : <Navigate to="/signin" replace />} />
-          <Route path="/signin" element={<Login onLogin={handleLogin} />} />
-          <Route path="/signup" element={<Register onRegister={handleRegister} />} />
+          <Route path="*" element={loggedIn ? <Navigate to="/" replace /> : <Navigate to="/sign-in" replace />} />
+          <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
+          <Route path="/sign-up" element={<Register onRegister={handleRegister} />} />
           <Route path="/" element={<ProtectedRoute element={Main}
             onEditAvatar={handleEditAvatarClick}
             onEditProfile={handleEditProfileClick}
