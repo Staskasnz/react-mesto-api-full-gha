@@ -20,7 +20,7 @@ const { DB_ADDRESS } = require('./config');
 //   'https://api.staskasnz.nomoreparties.sbs',
 // ];
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3001 } = process.env;
 const app = express();
 
 app.use(cors());
@@ -76,9 +76,7 @@ app.post('/signin', celebrate({
   }),
 }), login);
 
-app.use((req, res, next) => {
-  auth(req, res, next);
-});
+app.use(auth);
 
 mongoose.connect(DB_ADDRESS, {
   useNewUrlParser: true,
@@ -96,9 +94,7 @@ app.use(errorLogger);
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
-  errorHandler(err, req, res, next);
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
